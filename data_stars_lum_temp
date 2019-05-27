@@ -1,0 +1,25 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Mon May 27 14:31:51 2019
+    EART/ASTR 119
+
+@author: Andrew Quartuccio
+"""
+
+# =============================================================================
+#                           Module Imports
+# =============================================================================
+
+import os
+import numpy as np
+
+# =============================================================================
+#                           File/Directory Parmeters
+# =============================================================================
+
+file_in = './Data/hygdata_v3.csv'
+dir_in  = './Data'
+
+hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33))
+
