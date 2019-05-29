@@ -1,8 +1,8 @@
 # EART/ASTR 119 Final Project - Data Analysis
 
 Authors:
-  Andrew Quartuccio
-  Brady Lobmeyer
+  Andrew Quartuccio,
+  Brady Lobmeyer,
   Will Dean
   
 Using Star Data Base from - http://www.astronexus.com/hyg
