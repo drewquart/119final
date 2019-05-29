@@ -9,6 +9,13 @@ Using Star Data Base from - http://www.astronexus.com/hyg
     or
 Git page - https://github.com/astronexus/HYG-Database
 
+BIG TO-DO:
+
+-)  Plan presentation
+-)  Highlight Numerical Methods Used
+-)  Exemplify some lines of code ***
+-)  Show/Save Plots/Fits
+
 
 TO-DO: 
 "Things we have to solve, 
