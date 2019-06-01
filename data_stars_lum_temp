@@ -22,4 +22,12 @@ file_in = './Data/hygdata_v3.csv'
 dir_in  = './Data'
 
 hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
+hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19)).T
+m_X = hyg_ptdata[0]
+m_Y = hyg_ptdata[1]
+m_Z = hyg_ptdata[2]
 
+
+fig1 = plt.figure(1, figsize=(100,100))
+ax = axes3d.Axes3D(fig1)
+ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
