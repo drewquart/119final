@@ -17,17 +17,38 @@ import numpy as np
 # =============================================================================
 #                           File/Directory Parmeters
 # =============================================================================
-
 file_in = './Data/hygdata_v3.csv'
 dir_in  = './Data'
+pi=np.pi
 
 hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
 hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19)).T
 m_X = hyg_ptdata[0]
 m_Y = hyg_ptdata[1]
 m_Z = hyg_ptdata[2]
+r= (m_X**2+m_Y**2+m_Z**2)**.5
+print r
+ci= hyg_data[0]
+sel_stars= np.zeros((1,np.size(r)))
+sigma= 5.670*1e-8
+Lum= hyg_data[1]
 
+T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+1.7)))
+R= np.sqrt(Lum/(4*pi*sigma*T))
+print R
+
+for i in range( 0,np.size(r)+1):
+    rmax= 500
+    rmin= 100
+    if r[i]<=rmax and r[i]>=rmin:
+        sel_stars=[sel_stars, r[i]]
+    
 
 fig1 = plt.figure(1, figsize=(100,100))
 ax = axes3d.Axes3D(fig1)
 ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
+
+hyg_vptdata= np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (20,21,22)).T
+m_vX = hyg_vptdata[0]
+m_vY = hyg_vptdata[1]
+m_vZ = hyg_vptdata[2]
