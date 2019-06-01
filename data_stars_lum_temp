@@ -23,6 +23,9 @@ dir_in  = './Data'
 
 hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
 hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19)).T
+Dist =  np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (9)).T
+Mag  = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (13)).T
+col = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16)).T
 m_X = hyg_ptdata[0]
 m_Y = hyg_ptdata[1]
 m_Z = hyg_ptdata[2]
