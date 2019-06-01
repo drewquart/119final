@@ -33,7 +33,7 @@ sel_stars= np.zeros((1,np.size(r)))
 sigma= 5.670*1e-8
 Lum= hyg_data[1]
 
-T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+1.7)))
+T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+0.62)))
 R= np.sqrt(Lum/(4*pi*sigma*T))
 print R
 
