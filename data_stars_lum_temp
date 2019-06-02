@@ -55,3 +55,158 @@ hyg_vptdata= np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header
 m_vX = hyg_vptdata[0]
 m_vY = hyg_vptdata[1]
 m_vZ = hyg_vptdata[2]
+
+# =============================================================================
+#                           Module Imports
+# =============================================================================
+from __future__ import division
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+# =============================================================================
+#                           File/Directory Parmeters
+# =============================================================================
+
+file_in = './hygdata_v3.csv'
+dir_in  = './data'
+
+df = pd.read_table(file_in, delimiter=',', header=0, index_col = 0, usecols = ( 0, 14, 9, 16, 15),
+                   names = ['ID', 'dist', 'M_V', 'SpType', 'B-V'])
+df_clean = df.applymap(lambda x: np.nan if isinstance(x, basestring)
+                       and x.isspace() else x)
+df_clean= df_clean.dropna()
+
+
+#create new row with first two characters of spectral class 
+f = lambda s: (len(s) >= 2)  and (s[0].isalpha()) and (s[1].isdigit())
+i  = df_clean['SpType'].apply(f)
+df_clean = df_clean[i]
+f = lambda s: s[0:2]
+df_clean['SpType2'] = df_clean['SpType'].apply(f)
+
+# Check spectral classes f = lambda s: s[0] #clases = df_clean['SpType'].map(f) #clases.value_counts()
+
+#remove special classes C,N,R,S
+f = lambda s: s[0] in 'OBAFGKM'
+df_clean = df_clean[df_clean['SpType'].map(f)]
+
+# order presicely
+orden = {'O':'0', 'B':'1', 'A':'2', 'F':'3', 'G':'4', 'K':'5', 'M':'6'}
+f = lambda s: orden[s[0]]+s[1]
+df_clean['SpType2'] = df_clean['SpType2'].apply(f)
+df_clean.head()
+
+#df_clean.describe()
+#df_clean['SpType'].describe()
+#hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
+#hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19)).T
+#Dist =  np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (9)).T
+#Mag  = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1,  skip_footer = 100, usecols = (14)).T
+#col = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1,  skip_footer = 100, usecols = (16)).T
+
+
+
+#m_X = hyg_ptdata[0]
+#m_Y = hyg_ptdata[1]
+#m_Z = hyg_ptdata[2]
+
+#df_clean = df.applymap(lambda x: np.nan if isinstance(x, basestring)
+                      # and x.isspace() else x)
+
+#fig1 = plt.figure(1, figsize=(100,100))
+#ax = axes3d.Axes3D(fig1)
+#ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
+'''
+fig, ax = plt.subplots(figsize=(8,10))
+ax.set_xlim(0, 70)
+ax.set_ylim(15, -10)
+ax.grid()
+ax.set_title('H-R Diagram')
+ax.title.set_fontsize(20)
+ax.set_xlabel('spectral class')
+ax.xaxis.label.set_fontsize(20)
+ax.set_ylabel('Absolute magnitude')
+ax.yaxis.label.set_fontsize(20)
+ax.scatter(df_clean['SpType2'].astype(np.int), df_clean['M_V'],
+           s=50, edgecolors='none', alpha=0.015, c='k')
+ax.set_xticks(range(5,75,10))
+ax.set_xticklabels(['O', 'B', 'A', 'F', 'G', 'K', 'M'])
+ax.tick_params(axis='both', labelsize=14)
+'''
+'''
+continuous scale
+fig, ax = plt.subplots(figsize=(8,10))
+
+ax.set_xlim(-0.5, 2.5)
+ax.set_ylim(15, -10)
+ax.grid()
+ax.set_title('H-R Diagram in (HYD Database)')
+
+ax.title.set_fontsize(20)
+ax.set_xlabel('Color index B-V')
+ax.xaxis.label.set_fontsize(20)
+ax.set_ylabel('Absolute magnitude')
+ax.yaxis.label.set_fontsize(20)
+
+ax.scatter(df_clean['B-V'], df_clean['M_V'],
+#           s=50, edgecolors='none', alpha=0.015, c='k')
+           s=1, edgecolors='none', c='k')
+ax.tick_params(axis='both', labelsize=14)
+
+#h = ax.hist2d(M_V, B_V, bins=300, cmin=10, norm=colors.PowerNorm(0.5), zorder=0.5)
+#cb = fig.colorbar(h[3], ax=ax, pad=0.02)
+'''
+
+def plot_lum_class(b,c, label):
+    ''' b: boolean Series to make the selection
+        c: Color
+        label: for the legend
+    '''
+    x = df_clean['B-V'][b]
+    y = df_clean['M_V'][b]
+    ax.scatter(x, y, c = c, s=5, edgecolors='none', label = label)
+
+fig = plt.figure(figsize=(8,10))
+ax = fig.add_subplot(111, facecolor='1.00')
+
+ax.set_xlim(-0.5, 2.75)
+ax.set_ylim(15, -15)
+ax.grid()
+ax.set_title('H-R Diagram /n HYD Star Database')
+ax.title.set_fontsize(15)
+ax.set_xlabel('Color index B-V')
+ax.xaxis.label.set_fontsize(15)
+ax.set_ylabel('Absolute magnitude')
+ax.yaxis.label.set_fontsize(15)
+
+#code in luminosity class
+f = lambda s: 'VII' in s
+b = df_clean['SpType'].map(f)
+plot_lum_class(b,'black', 'VII: white dwarfs')
+
+f = lambda s: ('VI' in s) and ('VII' not in s)
+b = df_clean['SpType'].map(f)
+plot_lum_class(b,'darkblue', 'VI: subdwarfs')
+
+f = lambda s: ('V' in s) and ('VI' not in s) and ('IV' not in s)
+b = df_clean['SpType'].map(f)
+plot_lum_class(b,'teal', 'V: main-sequence')
+
+f = lambda s: 'IV' in s
+b = df_clean['SpType'].map(f)
+plot_lum_class(b,'hotpink', 'IV: subgiants')
+
+f = lambda s: 'III' in s
+b = df_clean['SpType'].map(f)
+plot_lum_class(b,'green', 'III: giants')
+
+f = lambda s: ('II' in s) and ('III' not in s) and ('VII' not in s)
+b = df_clean['SpType'].map(f)
+plot_lum_class(b,'orange', 'II: bright giants')
+
+f = lambda s: ('I' in s) and ('II' not in s) and ('V' not in s)
+b = df_clean['SpType'].map(f)
+plot_lum_class(b,'yellow', 'I: supergiants')
+
+ax.tick_params(axis='both', labelsize=10)
+ax.legend(loc = 'best', scatterpoints=1,markerscale = 4, shadow=True)
