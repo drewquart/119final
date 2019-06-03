@@ -14,50 +14,48 @@ Created on Mon May 27 14:31:51 2019
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3D as axes3d
+from mpl_toolkits.mplot3d import axes3d
+import opt_utils as opt
 import scipy.stats
-
 # =============================================================================
 #                           File/Directory Parmeters
 # =============================================================================
+
 file_in = './Data/hygdata_v3.csv'
 dir_in  = './Data'
 pi=np.pi
 
 hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
-hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19)).T
-Dist =  np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (9)).T
-Mag  = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (13)).T
-col = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16)).T
-m_X = hyg_ptdata[0]
-m_Y = hyg_ptdata[1]
-m_Z = hyg_ptdata[2]
-r= (m_X**2+m_Y**2+m_Z**2)**.5
-print r
-ci= hyg_data[0]
-sel_stars= np.zeros((1,np.size(r)))
-sigma= 5.670*1e-8
-Lum= hyg_data[1]
-
-T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+0.62)))
-R= np.sqrt(Lum/(4*pi*sigma*T))
-print R
-
-for i in range( 0,np.size(r)+1):
-    rmax= 500
-    rmin= 100
-    if r[i]<=rmax and r[i]>=rmin:
-        sel_stars=[sel_stars, r[i]]
-    
-
-fig1 = plt.figure(1, figsize=(100,100))
-ax = axes3d.Axes3D(fig1)
-ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
-
+hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19,13)).T
 hyg_vptdata= np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (20,21,22)).T
 m_vX = hyg_vptdata[0]
 m_vY = hyg_vptdata[1]
 m_vZ = hyg_vptdata[2]
+
+m_X = hyg_ptdata[0]
+m_Y = hyg_ptdata[1]
+m_Z = hyg_ptdata[2]
+
+rho= ((m_X**2+m_Y**2+m_Z**2)**.5)
+mag= hyg_ptdata[3]
+
+ci= hyg_data[0] 
+Lum= hyg_data[1]
+
+sigma= 5.670*1e-8
+Lum= Lum*(3.846e26)
+T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+.62)))
+R= (np.sqrt(Lum/(4*pi*sigma*(T**4))))/1000
+
+fig1 = plt.figure(1, figsize=(10,10))
+plt.plot(rho, mag, 'r.')
+plt.show()
+
+
+
+fig2 = plt.figure(2, figsize=(100,100))
+ax = axes3d.Axes3D(fig2)
+ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
 
 # =============================================================================
 #                           Module Imports
