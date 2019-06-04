@@ -21,6 +21,7 @@ import scipy.stats
 #                           File/Directory Parmeters
 # =============================================================================
 
+
 file_in = './Data/hygdata_v3.csv'
 dir_in  = './Data'
 pi=np.pi
@@ -28,18 +29,19 @@ pi=np.pi
 hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
 hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19,13)).T
 hyg_vptdata= np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (20,21,22)).T
-m_vX = hyg_vptdata[0]
-m_vY = hyg_vptdata[1]
-m_vZ = hyg_vptdata[2]
 
 m_X = hyg_ptdata[0]
 m_Y = hyg_ptdata[1]
 m_Z = hyg_ptdata[2]
 
+m_vX = hyg_vptdata[0]
+m_vY = hyg_vptdata[1]
+m_vZ = hyg_vptdata[2]
+
 rho= ((m_X**2+m_Y**2+m_Z**2)**.5)
 mag= hyg_ptdata[3]
 
-ci= hyg_data[0] 
+ci= hyg_data[0]
 Lum= hyg_data[1]
 
 sigma= 5.670*1e-8
@@ -47,15 +49,27 @@ Lum= Lum*(3.846e26)
 T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+.62)))
 R= (np.sqrt(Lum/(4*pi*sigma*(T**4))))/1000
 
-fig1 = plt.figure(1, figsize=(10,10))
+fig1 = plt.figure(1)
 plt.plot(rho, mag, 'r.')
+plt.axes.set_xlim(fig1, 0, 2000)
 plt.show()
 
 
+for t in range(0, 1000001, 250000):
+    m_X= m_vX*t+m_X
+    m_Y= m_vY*t+m_Y
+    m_X= m_vZ*t+m_Z
 
-fig2 = plt.figure(2, figsize=(100,100))
-ax = axes3d.Axes3D(fig2)
-ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
+    fig2 = plt.figure(2, figsize=(50,50))
+    print 'time step: ', int( t), 'years'#,(n+1)/plot_step,(n+1)%plot_step
+    ax = axes3d.Axes3D(fig2)
+    ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
+    ax.scatter(0,0,0, color='blue', marker='o')
+    plt.pause(3)
+    ax.set_title( 'Time Step: %.1f [day]'%( t))
+    file_out='star_location.gif'
+    plt.savefig( 'file_out')
+
 
 # =============================================================================
 #                           Module Imports
