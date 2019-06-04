@@ -11,12 +11,15 @@ Created on Mon May 27 14:31:51 2019
 #                           Module Imports
 # =============================================================================
 
+from __future__ import division
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import opt_utils as opt
 import scipy.stats
+import pandas as pd
+
 # =============================================================================
 #                           File/Directory Parmeters
 # =============================================================================
@@ -71,13 +74,6 @@ for t in range(0, 1000001, 250000):
     plt.savefig( 'file_out')
 
 
-# =============================================================================
-#                           Module Imports
-# =============================================================================
-from __future__ import division
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 # =============================================================================
 #                           File/Directory Parmeters
 # =============================================================================
