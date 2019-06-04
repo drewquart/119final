@@ -5,27 +5,28 @@ Created on Mon May 27 14:31:51 2019
     EART/ASTR 119
 
 @author: Andrew Quartuccio
+         Brady Lobmeyer
+         Will Dean
 """
 
 # =============================================================================
 #                           Module Imports
 # =============================================================================
-
 from __future__ import division
+import pandas as pd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-import opt_utils as opt
+import Modules.opt_utils as opt
 import scipy.stats
-import pandas as pd
-
 # =============================================================================
-#                           File/Directory Parmeters
+#                           File/Directory Parmeters for Fig 1,2
 # =============================================================================
 
 
 file_in = './Data/hygdata_v3.csv'
+file_out = './Data/star_location.gif'
 dir_in  = './Data'
 pi=np.pi
 
@@ -52,11 +53,14 @@ Lum= Lum*(3.846e26)
 T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+.62)))
 R= (np.sqrt(Lum/(4*pi*sigma*(T**4))))/1000
 
-fig1 = plt.figure(1)
+plt.figure(1)
+ax = plt.subplot()
 plt.plot(rho, mag, 'r.')
-plt.axes.set_xlim(fig1, 0, 2000)
+plt.Axes.set_xlim(ax, 0, 2000)
 plt.show()
 
+
+#TODO: Clean the R vector
 
 for t in range(0, 1000001, 250000):
     m_X= m_vX*t+m_X
@@ -70,12 +74,11 @@ for t in range(0, 1000001, 250000):
     ax.scatter(0,0,0, color='blue', marker='o')
     plt.pause(3)
     ax.set_title( 'Time Step: %.1f [day]'%( t))
-    file_out='star_location.gif'
-    plt.savefig( 'file_out')
+    plt.savefig( file_out)
 
 
 # =============================================================================
-#                           File/Directory Parmeters
+#           File/Directory Parmeters for Hertz-Sprung
 # =============================================================================
 
 file_in = './hygdata_v3.csv'
@@ -88,7 +91,7 @@ df_clean = df.applymap(lambda x: np.nan if isinstance(x, basestring)
 df_clean= df_clean.dropna()
 
 
-#create new row with first two characters of spectral class 
+#create new row with first two characters of spectral class
 f = lambda s: (len(s) >= 2)  and (s[0].isalpha()) and (s[1].isdigit())
 i  = df_clean['SpType'].apply(f)
 df_clean = df_clean[i]
