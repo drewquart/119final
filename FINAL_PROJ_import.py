@@ -70,25 +70,16 @@ def lin_LS( aX, aY):
 
 ci= hyg_data[0]
 Lum= hyg_data[1]
-#Lum_Temp = []
+
 
 sigma= 5.670*1e-8
-#Lum= Lum*(3.846e26)
 T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+.62)))
 R= (np.sqrt(Lum/(4*pi*sigma*(T**4))))/1000
-#
-#Lum_Temp[0::] = T
-#Lum_Temp[1::] = Lum
 
 # Power Law fit
-tmin, tmax = 1e3, 5e3
-#lmin, lmax = 1, 1e3
-sel_T      = np.log10( T[1:10])
-sel_Lum    = np.log10( Lum[1:10])
-
-
-
-slope, f_a = lin_LS( np.log10( sel_T), np.log10( sel_Lum))
+tmin, tmax = 1, 1e5
+sel   = np.logical_and( T[0::] >= tmin, T[0::] <= tmax)
+slope, f_a = lin_LS( np.log10( T[sel]), np.log10( Lum[sel]))
 
 aX_fit = np.linspace( tmin*.5, tmax*5, 100)
 aPLfit = 10**(f_a)*aX_fit**slope
@@ -100,6 +91,8 @@ ax.set_title( 'Power-Law Fit')
 ax.loglog( T, Lum, 'ko', label = 'data')
 ax.loglog( aX_fit, aPLfit, 'r--', label = 'L ~ T^(%.2f)'%( round( slope, 2)))
 ax.legend( loc = 'lower left')
+plt.ax.set_xlim(ax, 0, 100000)
+plt.ax.set_ylim(ax, 0, 100000)
 ax.set_xlabel( 'Temperature [degree C]')
 ax.set_ylabel( 'Luminosity [solar units]')
 plt.show()
