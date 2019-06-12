@@ -73,38 +73,40 @@ def lin_LS( aX, aY):
     return slope, a
 #=======================================================================================
 
-# Power Law fit
-tmin, tmax = 1, 1e5
-sel   = np.logical_and( T[0::] >= tmin, T[0::] <= tmax, np.isnan(T[0::]) != True)
-slope, f_a = lin_LS( np.log10( T[sel]), np.log10( Lum[sel]))
-
-aX_fit = np.linspace( tmin*.5, tmax*5, 100)
-aPLfit = 10**(f_a)*aX_fit**slope
-
+## Power Law fit
+#tmin, tmax = 1, 1e5
+#sel   = np.logical_and( T[0::] >= tmin, T[0::] <= tmax, np.isnan(T[0::]) != True)
+#slope, f_a = lin_LS( np.log10( T[sel]), np.log10( Lum[sel]))
+#
+#aX_fit = np.linspace( tmin*.5, tmax*5, 100)
+#aPLfit = 10**(f_a)*aX_fit**slope
+#
 ## Power Law Plot
 #plt.figure(1)
-#ax1 = plt.subplot(211)
+#ax1 = plt.subplot(111)
 #ax1.set_title( 'Power-Law Fit')
 #ax1.loglog( T[sel], Lum[sel], 'ko', label = 'data')
 #ax1.loglog( aX_fit, aPLfit, 'r--', label = 'L ~ T^(%.2f)'%( round( slope, 2)))
 #ax1.legend( loc = 'lower left')
 #ax1.set_xlim(ax1, 0, 100000)
-#ax1.set_ylim(ax1, 0, 100000)
 #ax1.set_xlabel( 'Temperature [degree C]')
 #ax1.set_ylabel( 'Luminosity [solar units]')
-#
-#
+#plt.show()
+
+
+
 ## Distance vs Apparent Magnitude
-#ax2 = plt.figure(1).subplot(212)
+#plt.figure(2)
+#ax2 = plt.subplot(111)
 #ax2.plot(rho, mag, 'r.')
 #ax2.Axes.set_xlim(ax2, 0, 1100)
 #ax2.Axes.set_ylim(ax2, 0, 15)
-
+#plt.show()
 
 
 # 3D Celestial Sphere
-fig2 = plt.figure(2, figsize=(100,100))
-ax = axes3d.Axes3D(fig2)
+fig3 = plt.figure(3, figsize=(100,100))
+ax = axes3d.Axes3D(fig3)
 ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
 plt.show()
 
@@ -146,20 +148,20 @@ def plot_lum_class(b,c, label):
     '''
     x = df_clean['B-V'][b]
     y = df_clean['M_V'][b]
-    ax3.scatter(x, y, c = c, s=5, edgecolors='none', label = label)
+    ax4.scatter(x, y, c = c, s=5, edgecolors='none', label = label)
 
-fig3 = plt.figure(3,figsize=(8,10))
-ax3 = fig3.add_subplot(111, facecolor='1.00')
+fig4 = plt.figure(4,figsize=(8,10))
+ax4 = fig4.add_subplot(111, facecolor='1.00')
 
-ax3.set_xlim(-0.5, 2.75)
-ax3.set_ylim(15, -15)
-ax3.grid()
-ax3.set_title('H-R Diagram /n HYD Star Database')
-ax3.title.set_fontsize(15)
-ax3.set_xlabel('Color index B-V')
-ax3.xaxis.label.set_fontsize(15)
-ax3.set_ylabel('Absolute magnitude')
-ax3.yaxis.label.set_fontsize(15)
+ax4.set_xlim(-0.5, 2.75)
+ax4.set_ylim(15, -15)
+ax4.grid()
+ax4.set_title('H-R Diagram /n HYD Star Database')
+ax4.title.set_fontsize(15)
+ax4.set_xlabel('Color index B-V')
+ax4.xaxis.label.set_fontsize(15)
+ax4.set_ylabel('Absolute magnitude')
+ax4.yaxis.label.set_fontsize(15)
 
 #code in luminosity class
 f = lambda s: 'VII' in s
@@ -190,5 +192,5 @@ f = lambda s: ('I' in s) and ('II' not in s) and ('V' not in s)
 b = df_clean['SpType'].map(f)
 plot_lum_class(b,'yellow', 'I: supergiants')
 
-ax3.tick_params(axis='both', labelsize=10)
-ax3.legend(loc = 'best', scatterpoints=1,markerscale = 4, shadow=True)
+ax4.tick_params(axis='both', labelsize=10)
+ax4.legend(loc = 'best', scatterpoints=1,markerscale = 4, shadow=True)
