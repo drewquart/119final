@@ -5,84 +5,113 @@ Created on Mon May 27 14:31:51 2019
     EART/ASTR 119
 
 @author: Andrew Quartuccio
-         Brady Lobmeyer
-         Will Dean
 """
 
 # =============================================================================
 #                           Module Imports
 # =============================================================================
+
 from __future__ import division
-import pandas as pd
-import os
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-import Modules.opt_utils as opt
-import scipy.stats
+import pandas as pd
+
 # =============================================================================
 #                           File/Directory Parmeters for Fig 1,2
 # =============================================================================
 
-
-file_in = './Data/hygdata_v3.csv'
+file_in  = './Data/hygdata_v3.csv'
 file_out = './Data/star_location.gif'
-dir_in  = './Data'
-pi=np.pi
+dir_in   = './Data'
+pi       = np.pi
 
-hyg_data = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
+# Load in data
+hyg_data   = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (16, 33)).T
 hyg_ptdata = np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (17,18,19,13)).T
 hyg_vptdata= np.genfromtxt( file_in, dtype = float, delimiter = ',', skip_header = 1, usecols = (20,21,22)).T
 
+# Position Vars
 m_X = hyg_ptdata[0]
 m_Y = hyg_ptdata[1]
 m_Z = hyg_ptdata[2]
 
+# Velocity Vars
 m_vX = hyg_vptdata[0]
 m_vY = hyg_vptdata[1]
 m_vZ = hyg_vptdata[2]
 
+# Stellar Variables
 rho= ((m_X**2+m_Y**2+m_Z**2)**.5)
 mag= hyg_ptdata[3]
-
 ci= hyg_data[0]
 Lum= hyg_data[1]
-
 sigma= 5.670*1e-8
-Lum= Lum*(3.846e26)
 T= 4600*(1/((.92*ci)+1.7)+(1/((.92*ci)+.62)))
 R= (np.sqrt(Lum/(4*pi*sigma*(T**4))))/1000
 
-plt.figure(1)
-ax = plt.subplot()
-plt.plot(rho, mag, 'r.')
-plt.Axes.set_xlim(ax, 0, 2000)
+
+# PL_Fit Function
+#=======================================================================================
+def lin_LS( aX, aY):
+    """
+    - linear least squares assuming normal distributed errors in Y, no errors in X
+
+    :param aX: - independent variable
+    :param aY: - measured dependent variable
+
+    :return: float(<slope>)
+    """
+    meanX = aX.mean()
+    meanY = aY.mean()
+    # variance and co-variance - 1./N term omitted because it cancels in the following ratio
+    VarX  = ( (aX - meanX)**2).sum()
+    #VarY  = ( (aY - meanY)**2).sum()
+    CovXY = ( (aY-meanY)*(aX-meanX)).sum()
+    slope = CovXY/VarX
+    a     = meanY - meanX*slope
+    return slope, a
+#=======================================================================================
+
+# Power Law fit
+tmin, tmax = 1, 1e5
+sel   = np.logical_and( T[0::] >= tmin, T[0::] <= tmax, np.isnan(T[0::]) != True)
+slope, f_a = lin_LS( np.log10( T[sel]), np.log10( Lum[sel]))
+
+aX_fit = np.linspace( tmin*.5, tmax*5, 100)
+aPLfit = 10**(f_a)*aX_fit**slope
+
+## Power Law Plot
+#plt.figure(1)
+#ax1 = plt.subplot(211)
+#ax1.set_title( 'Power-Law Fit')
+#ax1.loglog( T[sel], Lum[sel], 'ko', label = 'data')
+#ax1.loglog( aX_fit, aPLfit, 'r--', label = 'L ~ T^(%.2f)'%( round( slope, 2)))
+#ax1.legend( loc = 'lower left')
+#ax1.set_xlim(ax1, 0, 100000)
+#ax1.set_ylim(ax1, 0, 100000)
+#ax1.set_xlabel( 'Temperature [degree C]')
+#ax1.set_ylabel( 'Luminosity [solar units]')
+#
+#
+## Distance vs Apparent Magnitude
+#ax2 = plt.figure(1).subplot(212)
+#ax2.plot(rho, mag, 'r.')
+#ax2.Axes.set_xlim(ax2, 0, 1100)
+#ax2.Axes.set_ylim(ax2, 0, 15)
+
+
+
+# 3D Celestial Sphere
+fig2 = plt.figure(2, figsize=(100,100))
+ax = axes3d.Axes3D(fig2)
+ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
 plt.show()
-
-
-#TODO: Clean the R vector
-
-for t in range(0, 1000001, 250000):
-    m_X= m_vX*t+m_X
-    m_Y= m_vY*t+m_Y
-    m_X= m_vZ*t+m_Z
-
-    fig2 = plt.figure(2, figsize=(50,50))
-    print 'time step: ', int( t), 'years'#,(n+1)/plot_step,(n+1)%plot_step
-    ax = axes3d.Axes3D(fig2)
-    ax.scatter( m_X, m_Y, m_Z, c='r', marker='o')
-    ax.scatter(0,0,0, color='blue', marker='o')
-    plt.pause(3)
-    ax.set_title( 'Time Step: %.1f [day]'%( t))
-    plt.savefig( file_out)
-
 
 # =============================================================================
 #           File/Directory Parmeters for Hertz-Sprung
 # =============================================================================
 
-file_in = './hygdata_v3.csv'
-dir_in  = './data'
 
 df = pd.read_table(file_in, delimiter=',', header=0, index_col = 0, usecols = ( 0, 14, 9, 16, 15),
                    names = ['ID', 'dist', 'M_V', 'SpType', 'B-V'])
@@ -117,20 +146,20 @@ def plot_lum_class(b,c, label):
     '''
     x = df_clean['B-V'][b]
     y = df_clean['M_V'][b]
-    ax.scatter(x, y, c = c, s=5, edgecolors='none', label = label)
+    ax3.scatter(x, y, c = c, s=5, edgecolors='none', label = label)
 
-fig = plt.figure(figsize=(8,10))
-ax = fig.add_subplot(111, facecolor='1.00')
+fig3 = plt.figure(3,figsize=(8,10))
+ax3 = fig3.add_subplot(111, facecolor='1.00')
 
-ax.set_xlim(-0.5, 2.75)
-ax.set_ylim(15, -15)
-ax.grid()
-ax.set_title('H-R Diagram /n HYD Star Database')
-ax.title.set_fontsize(15)
-ax.set_xlabel('Color index B-V')
-ax.xaxis.label.set_fontsize(15)
-ax.set_ylabel('Absolute magnitude')
-ax.yaxis.label.set_fontsize(15)
+ax3.set_xlim(-0.5, 2.75)
+ax3.set_ylim(15, -15)
+ax3.grid()
+ax3.set_title('H-R Diagram /n HYD Star Database')
+ax3.title.set_fontsize(15)
+ax3.set_xlabel('Color index B-V')
+ax3.xaxis.label.set_fontsize(15)
+ax3.set_ylabel('Absolute magnitude')
+ax3.yaxis.label.set_fontsize(15)
 
 #code in luminosity class
 f = lambda s: 'VII' in s
@@ -161,5 +190,5 @@ f = lambda s: ('I' in s) and ('II' not in s) and ('V' not in s)
 b = df_clean['SpType'].map(f)
 plot_lum_class(b,'yellow', 'I: supergiants')
 
-ax.tick_params(axis='both', labelsize=10)
-ax.legend(loc = 'best', scatterpoints=1,markerscale = 4, shadow=True)
+ax3.tick_params(axis='both', labelsize=10)
+ax3.legend(loc = 'best', scatterpoints=1,markerscale = 4, shadow=True)
